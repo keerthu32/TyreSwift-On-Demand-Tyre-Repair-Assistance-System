@@ -24,6 +24,11 @@ Use either URL style below:
 Health route:
 - `http://localhost/tyreswift-backend/`
 
+
+Wrong (duplicate folder segment):
+- `http://localhost/tyreswift-backend/tyreswift-backend/`
+
+
 ---
 
 ## 3) Example cURL commands

@@ -3,7 +3,7 @@
  * Main API router for TyreSwift backend.
  *
  * Supports both styles:
- * 1) /tyreswift-backend/create_request        (with .htaccess rewrite)
+ * 1) /tyreswift-backend/create_request          (with .htaccess rewrite)
  * 2) /tyreswift-backend/index.php/create_request (without rewrite)
  */
 
@@ -14,6 +14,7 @@ require_once __DIR__ . '/config/database.php';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
 $scriptDir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+$baseName = trim((string)basename(__DIR__), '/'); // tyreswift-backend
 
 // Remove base directory from full path if present.
 if ($scriptDir !== '' && strpos($path, $scriptDir) === 0) {
@@ -30,6 +31,11 @@ if (strpos($path, '/index.php') === 0) {
 
 $route = trim($path, '/');
 
+// Handle accidental duplicated base URL like /tyreswift-backend/tyreswift-backend/
+if ($route === $baseName || strpos($route, $baseName . '/') === 0) {
+    $route = trim(substr($route, strlen($baseName)), '/');
+}
+
 $routes = [
     '' => null,
     'create_request' => __DIR__ . '/api/create_request.php',
@@ -45,6 +51,7 @@ if ($route === '') {
     jsonResponse(200, [
         'success' => true,
         'message' => 'TyreSwift backend is running.',
+        'note' => 'Use only one /tyreswift-backend segment in URL. Example: /tyreswift-backend/create_request',
         'usage' => [
             'rewrite_enabled' => '/tyreswift-backend/create_request',
             'rewrite_disabled' => '/tyreswift-backend/index.php/create_request',
@@ -57,6 +64,7 @@ if (!array_key_exists($route, $routes) || !is_string($routes[$route])) {
     jsonResponse(404, [
         'success' => false,
         'message' => 'Route not found.',
+        'hint' => 'If you opened /tyreswift-backend/tyreswift-backend/, remove one tyreswift-backend segment.',
         'available_routes' => array_values(array_filter(array_keys($routes))),
     ]);
 }
