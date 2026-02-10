@@ -1,19 +1,34 @@
 # TyreSwift – On-Demand Tyre Repair Assistance System (Backend)
 
 ## 1) Run locally with XAMPP
-1. Copy `tyreswift-backend/` into your XAMPP `htdocs/` directory.
+1. Copy **only** the `tyreswift-backend/` folder into your XAMPP `htdocs/` directory.
+   - Final path should look like: `C:/xampp/htdocs/tyreswift-backend/`
 2. Start **Apache** and **MySQL** from XAMPP Control Panel.
 3. Create database tables:
    - Open `http://localhost/phpmyadmin`
    - Create a DB named `tyreswift_db` (or run the script directly).
    - Import `database/schema.sql`.
 4. Update DB credentials in `config/database.php` if needed.
-5. Test API from terminal or Postman with base URL:
-   - `http://localhost/tyreswift-backend`
+5. Test API from terminal or Postman.
 
 ---
 
-## 2) Example cURL commands
+## 2) Base URLs
+Use either URL style below:
+
+- If Apache rewrite is enabled (`.htaccess` works):
+  - `http://localhost/tyreswift-backend/create_request`
+- If rewrite is not enabled:
+  - `http://localhost/tyreswift-backend/index.php/create_request`
+
+Health route:
+- `http://localhost/tyreswift-backend/`
+
+---
+
+## 3) Example cURL commands
+
+> Replace endpoint style depending on your setup (`/create_request` or `/index.php/create_request`).
 
 ### Create request
 ```bash
@@ -66,3 +81,15 @@ curl "http://localhost/tyreswift-backend/get_request_status?request_id=1"
 ```bash
 curl "http://localhost/tyreswift-backend/get_pending_requests"
 ```
+
+---
+
+## 4) Fix for "Index of /tyreswift-backend" issue
+If you see a directory listing like `Index of /tyreswift-backend`:
+
+- You likely copied the **whole repository** into `htdocs/tyreswift-backend/` instead of the project folder itself.
+- Correct structure should be:
+  - `htdocs/tyreswift-backend/index.php`
+  - `htdocs/tyreswift-backend/api/...`
+- Then open:
+  - `http://localhost/tyreswift-backend/`
