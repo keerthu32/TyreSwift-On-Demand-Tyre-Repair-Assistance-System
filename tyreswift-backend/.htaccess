@@ -1,9 +1,8 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /tyreswift-backend/
 
-    # If the requested resource is not a real file or folder,
-    # send request to index.php router.
+    # Keep this file portable across folder names (no hardcoded RewriteBase).
+    # If requested resource is not a real file/folder, route to index.php.
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [QSA,L]

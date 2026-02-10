@@ -3,8 +3,8 @@
  * Main API router for TyreSwift backend.
  *
  * Supports both styles:
- * 1) /tyreswift-backend/create_request          (with .htaccess rewrite)
- * 2) /tyreswift-backend/index.php/create_request (without rewrite)
+ * 1) <base>/create_request            (with .htaccess rewrite)
+ * 2) <base>/index.php/create_request  (without rewrite)
  */
 
 declare(strict_types=1);
@@ -14,7 +14,8 @@ require_once __DIR__ . '/config/database.php';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
 $scriptDir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
-$baseName = trim((string)basename(__DIR__), '/'); // tyreswift-backend
+$baseName = trim((string)basename(__DIR__), '/'); // e.g. backend or tyreswift-backend
+$publicBase = $scriptDir === '' ? '/' : $scriptDir; // e.g. /tyreswift/backend
 
 // Remove base directory from full path if present.
 if ($scriptDir !== '' && strpos($path, $scriptDir) === 0) {
@@ -31,7 +32,7 @@ if (strpos($path, '/index.php') === 0) {
 
 $route = trim($path, '/');
 
-// Handle accidental duplicated base URL like /tyreswift-backend/tyreswift-backend/
+// Handle accidental duplicated base segment like /.../backend/backend/
 if ($route === $baseName || strpos($route, $baseName . '/') === 0) {
     $route = trim(substr($route, strlen($baseName)), '/');
 }
@@ -51,10 +52,11 @@ if ($route === '') {
     jsonResponse(200, [
         'success' => true,
         'message' => 'TyreSwift backend is running.',
-        'note' => 'Use only one /tyreswift-backend segment in URL. Example: /tyreswift-backend/create_request',
+        'base_path' => $publicBase,
+        'note' => "Use a single base segment only. Example: {$publicBase}/create_request",
         'usage' => [
-            'rewrite_enabled' => '/tyreswift-backend/create_request',
-            'rewrite_disabled' => '/tyreswift-backend/index.php/create_request',
+            'rewrite_enabled' => $publicBase . '/create_request',
+            'rewrite_disabled' => $publicBase . '/index.php/create_request',
         ],
         'available_routes' => array_values(array_filter(array_keys($routes))),
     ]);
@@ -64,7 +66,8 @@ if (!array_key_exists($route, $routes) || !is_string($routes[$route])) {
     jsonResponse(404, [
         'success' => false,
         'message' => 'Route not found.',
-        'hint' => 'If you opened /tyreswift-backend/tyreswift-backend/, remove one tyreswift-backend segment.',
+        'base_path' => $publicBase,
+        'hint' => "If your URL has duplicate '/{$baseName}/{$baseName}/', remove one segment.",
         'available_routes' => array_values(array_filter(array_keys($routes))),
     ]);
 }
